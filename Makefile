@@ -13,7 +13,7 @@ clean:
 	@echo $@ done.
 
 .cxx.o:
-	g++ -c -Wall -std=c++11 $^
+	g++ -c -Wall -std=c++1y $^
 
 runas: $(OBJS_RUNAS)
 	/bin/rm -f $@

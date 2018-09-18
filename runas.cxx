@@ -1,19 +1,20 @@
+#include <algorithm>
+#include <memory>
+#include <string>
+
 #include <cstdio>
 #include <cstring>
 #include <cctype>
 #include <cstdlib>
 #include <cstdint>
+
 #include <sys/types.h>
 #include <unistd.h>
-#include <algorithm>
-#include <string>
-#include <memory>
 #include <pwd.h>
 #include <grp.h>
 
 /*
- * yum install glibc-static
- * g++ -o t -Wall -std=c++11 t.cxx
+ * g++ -o t -Wall -std=c++1y t.cxx
  */
 
 static const std::string option_leader = "--";
@@ -27,7 +28,7 @@ static bool starts_with(const std::string& s, const std::string& prefix) {
 
 static void usage(const char* argv0, const char* mes) {
     fprintf(stderr, "usage: %s [--setuid uid] [--setgid gid] /path/to/command [argv...]\n", argv0);
-    if (mes != NULL) {
+    if (mes != nullptr) {
         fputs("\n", stderr);
         fputs(mes, stderr);
     }
@@ -48,13 +49,13 @@ static bool getuid(const char* name, uid_t* uid) {
     }
 
     struct passwd pwd = {0};
-    struct passwd* result = NULL;
+    struct passwd* result = nullptr;
 
-    size_t len = sysconf(_SC_GETPW_R_SIZE_MAX);
-    std::unique_ptr<char[]> buf(new char[len]);
+    auto len = sysconf(_SC_GETPW_R_SIZE_MAX);
+    std::unique_ptr<char[]> buf(new char[len]());
 
-    int err = getpwnam_r(name, &pwd, buf.get(), len, &result);
-    if (result == NULL) {
+    auto err = getpwnam_r(name, &pwd, buf.get(), len, &result);
+    if (result == nullptr) {
         fprintf(stderr, "*** getpwnam_r: user=%s, %s\n", name, err == 0 ? "not found" : strerror(err));
         return false;
     }
@@ -71,12 +72,12 @@ static bool getgid(const char* name, gid_t* gid) {
     }
 
     struct group pwd = {0};
-    struct group* result = NULL;
-    size_t len = sysconf(_SC_GETGR_R_SIZE_MAX);
-    std::unique_ptr<char[]> buf(new char[len]);
+    struct group* result = nullptr;
+    auto len = sysconf(_SC_GETGR_R_SIZE_MAX);
+    std::unique_ptr<char[]> buf(new char[len]());
 
-    int err = getgrnam_r(name, &pwd, buf.get(), len, &result);
-    if (result == NULL) {
+    auto err = getgrnam_r(name, &pwd, buf.get(), len, &result);
+    if (result == nullptr) {
         fprintf(stderr, "*** getgrnam_r: group=%s, %s\n", name, err == 0 ? "not found" : strerror(err));
         return false;
     }
@@ -92,10 +93,10 @@ int main(int argc, char* argv[]) {
     gid_t gid = UINT32_MAX;
     for (int i = 1; i < argc; i++) {
         const char* arg = argv[i];
-        const char* next_arg = i < (argc - 1) ? argv[i + 1] : NULL;
+        const char* next_arg = i < (argc - 1) ? argv[i + 1] : nullptr;
         if (starts_with(arg, option_leader)) {
             if (std::string("--setuid") == arg) {
-                if (next_arg == NULL) {
+                if (next_arg == nullptr) {
                     usage(argv[0], "*** --setuid requires uid\n");
                     return 1;
                 }
@@ -104,7 +105,7 @@ int main(int argc, char* argv[]) {
                 }
                 i++;
             } else if (std::string("--setgid") == arg) {
-                if (next_arg == NULL) {
+                if (next_arg == nullptr) {
                     usage(argv[0], "*** --setgid requires gid\n");
                     return 1;
                 }
@@ -113,7 +114,7 @@ int main(int argc, char* argv[]) {
                 }
                 i++;
             } else if (std::string("--help") == arg) {
-				usage(argv[0], NULL);
+				usage(argv[0], nullptr);
 				return 0;
             } else {
                 break;
@@ -125,7 +126,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (args_begin == 0) {
-        usage(argv[0], NULL);
+        usage(argv[0], nullptr);
         return 1;
     }
 
